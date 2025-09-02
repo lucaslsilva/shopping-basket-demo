@@ -1,8 +1,10 @@
-﻿namespace Basket.Domain.Repositories
+﻿using ShoppingBasket.Domain.Entities;
+
+namespace ShoppingBasket.Domain.Repositories
 {
     public interface IBasketRepository
     {
-        Task<Entities.Basket> CreateAsync(CancellationToken ct = default);
-        Task<Entities.Basket?> GetByIdAsync(Guid id, CancellationToken ct = default);
+        Task<Basket> CreateAsync(CancellationToken ct = default);
+        Task<Basket?> GetByIdAsync(Guid id, CancellationToken ct = default);
     }
 }

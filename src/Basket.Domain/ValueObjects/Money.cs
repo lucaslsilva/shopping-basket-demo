@@ -1,4 +1,4 @@
-﻿namespace Basket.Domain.ValueObjects
+﻿namespace ShoppingBasket.Domain.ValueObjects
 {
     public readonly record struct Money(decimal Amount, string Currency)
     {

@@ -1,4 +1,4 @@
-﻿namespace Basket.Domain.Entities
+﻿namespace ShoppingBasket.Domain.Entities
 {
     public sealed class Basket
     {

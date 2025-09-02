@@ -1,6 +1,6 @@
-﻿using Basket.Domain.ValueObjects;
+﻿using ShoppingBasket.Domain.ValueObjects;
 
-namespace Basket.Domain.Entities
+namespace ShoppingBasket.Domain.Entities
 {
     public sealed class BaskedItem
     {

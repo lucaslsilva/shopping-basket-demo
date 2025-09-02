@@ -5,17 +5,17 @@ VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.Api", "src\Basket.Api\Basket.Api.csproj", "{C118024A-5D94-4819-87BA-5E01C728566F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingBasket.Api", "src\Basket.Api\ShoppingBasket.Api.csproj", "{C118024A-5D94-4819-87BA-5E01C728566F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.Domain", "src\Basket.Domain\Basket.Domain.csproj", "{B94A960A-48F1-4CD7-8732-A185349C5825}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingBasket.Domain", "src\Basket.Domain\ShoppingBasket.Domain.csproj", "{B94A960A-48F1-4CD7-8732-A185349C5825}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.Application", "src\Basket.Application\Basket.Application.csproj", "{A805638B-C92E-49A8-A6BA-26024D0F403A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingBasket.Application", "src\Basket.Application\ShoppingBasket.Application.csproj", "{A805638B-C92E-49A8-A6BA-26024D0F403A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.Infrastructure", "src\Basket.Infrastructure\Basket.Infrastructure.csproj", "{A5704BF6-422A-460B-AE7F-4CBF205ADCD1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingBasket.Infrastructure", "src\Basket.Infrastructure\ShoppingBasket.Infrastructure.csproj", "{A5704BF6-422A-460B-AE7F-4CBF205ADCD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.Tests", "tests\Basket.Tests\Basket.Tests.csproj", "{712ABF72-3CAB-4C1A-9C6C-020A0AC7F149}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingBasket.Tests", "tests\Basket.Tests\ShoppingBasket.Tests.csproj", "{712ABF72-3CAB-4C1A-9C6C-020A0AC7F149}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
