@@ -12,7 +12,7 @@ namespace ShoppingBasket.Tests.Domain
             var basket = new Basket();
             var price = new Money(10m, "GBP");
 
-            basket.AddItem(new BaskedItem(Guid.NewGuid(), "Test Product", price, 1));
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Test Product", price, 1));
 
             basket.Items.Should().HaveCount(1);
             basket.Items.First().ProductName.Should().Be("Test Product");
@@ -27,8 +27,8 @@ namespace ShoppingBasket.Tests.Domain
             var price = new Money(10m, "GBP");
             var productId = Guid.NewGuid();
 
-            basket.AddItem(new BaskedItem(productId, "Test Product", price, 1));
-            basket.AddItem(new BaskedItem(productId, "Test Product", price, 2));
+            basket.AddItem(new BasketItem(productId, "Test Product", price, 1));
+            basket.AddItem(new BasketItem(productId, "Test Product", price, 2));
 
             basket.Items.Should().HaveCount(1);
             basket.Items.First().Quantity.Should().Be(3);

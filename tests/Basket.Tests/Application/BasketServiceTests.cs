@@ -30,6 +30,23 @@ namespace ShoppingBasket.Tests.Application
         }
 
         [Fact]
+        public async Task AddMultipleItems_ShouldAddAllItems()
+        {
+            var requests = new List<AddItemRequest>
+            {
+                new(Guid.NewGuid(), "Product 1", 10m, "GBP", 1),
+                new(Guid.NewGuid(), "Product 2", 5m, "GBP", 2)
+            };
+
+            var basket = await _service.AddMultipleItemsToBasketAsync(new AddMultipleItemsRequest(requests));
+
+            basket.Items.Should().HaveCount(2);
+            basket.Items.First(i => i.ProductName == "Product 1").Quantity.Should().Be(1);
+            basket.Items.First(i => i.ProductName == "Product 2").Quantity.Should().Be(2);
+            basket.Items.All(i => i.UnitPrice.Amount > 0).Should().BeTrue();
+        }
+
+        [Fact]
         public async Task GetAsync_ShouldReturnBasket()
         {
             var basket = await _service.GetBasketAsync();

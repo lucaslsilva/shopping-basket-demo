@@ -2,12 +2,12 @@
 {
     public sealed class Basket
     {
-        private readonly List<BaskedItem> _items = new();
+        private readonly List<BasketItem> _items = new();
 
         public Guid Id { get; init; } = Guid.NewGuid();
-        public IReadOnlyCollection<BaskedItem> Items => _items.AsReadOnly();
+        public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
 
-        public void AddItem(BaskedItem item)
+        public void AddItem(BasketItem item)
         {
             if (item == null)
             {

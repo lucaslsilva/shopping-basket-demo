@@ -41,4 +41,11 @@ app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) 
     return Results.Ok(basket);
 }).AddEndpointFilter<ValidationFilter<AddItemRequest>>();
 
+app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketService service) =>
+{
+    var updatedBasket = await service.AddMultipleItemsToBasketAsync(req);
+    return Results.Ok(updatedBasket);
+})
+.AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>();
+
 app.Run();

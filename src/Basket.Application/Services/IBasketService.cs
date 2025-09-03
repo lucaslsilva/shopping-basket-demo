@@ -7,5 +7,6 @@ namespace ShoppingBasket.Application.Services
     {
         Task<Basket> GetBasketAsync(CancellationToken ct = default);
         Task<Basket> AddItemToBasketAsync(AddItemRequest request, CancellationToken ct = default);
+        Task<Basket> AddMultipleItemsToBasketAsync(AddMultipleItemsRequest request, CancellationToken ct = default);
     }
 }

@@ -2,14 +2,14 @@
 
 namespace ShoppingBasket.Domain.Entities
 {
-    public sealed class BaskedItem
+    public sealed class BasketItem
     {
         public Guid ProductId { get; } = Guid.NewGuid();
         public string ProductName { get; }
         public Money UnitPrice { get; private set; }
         public int Quantity { get; private set; }
 
-        public BaskedItem(Guid productId, string productName, Money unitPrice, int quantity = 1)
+        public BasketItem(Guid productId, string productName, Money unitPrice, int quantity = 1)
         {
             if (productId == Guid.Empty)
             {
