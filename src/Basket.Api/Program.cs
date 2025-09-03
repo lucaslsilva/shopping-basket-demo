@@ -35,10 +35,10 @@ if (app.Environment.IsDevelopment())
 // Get the basket
 app.MapGet("/baskets", async (IBasketService service) => Results.Ok(await service.GetBasketAsync()));
 
-app.MapPost("/basket/items", async (AddItemRequest req, IBasketService svc) =>
+app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) =>
 {
-    await svc.AddItemToBasketAsync(req);
-    return Results.Ok();
+    var basket = await service.AddItemToBasketAsync(req);
+    return Results.Ok(basket);
 }).AddEndpointFilter<ValidationFilter<AddItemRequest>>();
 
 app.Run();

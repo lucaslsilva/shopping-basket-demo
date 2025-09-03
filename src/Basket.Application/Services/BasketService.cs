@@ -19,11 +19,12 @@ namespace ShoppingBasket.Application.Services
             return _basketRepository.GetAsync(ct);
         }
 
-        public async Task AddItemToBasketAsync(AddItemRequest request, CancellationToken ct = default)
+        public async Task<Basket> AddItemToBasketAsync(AddItemRequest request, CancellationToken ct = default)
         {
             var basket = await _basketRepository.GetAsync(ct) ?? throw new InvalidOperationException("Basket not found");
             var item = new BaskedItem(request.ProductId, request.ProductName, new Money(request.UnitPrice, "GBP"), request.Quantity);
             basket.AddItem(item);
+            return basket;
         }        
     }
 }
