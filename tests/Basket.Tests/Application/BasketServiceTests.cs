@@ -47,6 +47,20 @@ namespace ShoppingBasket.Tests.Application
         }
 
         [Fact]
+        public async Task RemoveItem_ShouldRemoveItemFromBasket()
+        {
+            // Arrange: add an item first
+            var itemId = Guid.NewGuid();
+            await _service.AddItemToBasketAsync(new AddItemRequest(itemId, "Test Product", 10m, "GBP", 2));
+
+            // Act: remove the item
+            var basket = await _service.RemoveItemFromBasketAsync(itemId);
+
+            // Assert
+            basket.Items.Should().BeEmpty();
+        }
+
+        [Fact]
         public async Task GetAsync_ShouldReturnBasket()
         {
             var basket = await _service.GetBasketAsync();

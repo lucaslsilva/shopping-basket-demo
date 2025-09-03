@@ -37,8 +37,8 @@ app.MapGet("/baskets", async (IBasketService service) => Results.Ok(await servic
 
 app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) =>
 {
-    var basket = await service.AddItemToBasketAsync(req);
-    return Results.Ok(basket);
+    var updatedBasket = await service.AddItemToBasketAsync(req);
+    return Results.Ok(updatedBasket);
 }).AddEndpointFilter<ValidationFilter<AddItemRequest>>();
 
 app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketService service) =>
@@ -47,5 +47,11 @@ app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketSer
     return Results.Ok(updatedBasket);
 })
 .AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>();
+
+app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketService service) =>
+{
+    var updatedBasket = await service.RemoveItemFromBasketAsync(productId);
+    return Results.Ok(updatedBasket);
+});
 
 app.Run();

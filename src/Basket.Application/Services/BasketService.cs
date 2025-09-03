@@ -45,5 +45,12 @@ namespace ShoppingBasket.Application.Services
 
             return basket;
         }
+
+        public async Task<Basket> RemoveItemFromBasketAsync(Guid productId, CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            basket.RemoveItem(productId);
+            return basket;
+        }
     }
 }

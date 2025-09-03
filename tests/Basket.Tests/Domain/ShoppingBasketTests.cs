@@ -33,5 +33,21 @@ namespace ShoppingBasket.Tests.Domain
             basket.Items.Should().HaveCount(1);
             basket.Items.First().Quantity.Should().Be(3);
         }
+
+        [Fact]
+        public void RemoveItem_ShouldRemoveItemFromBasket()
+        {
+            // Arrange
+            var basket = new Basket();
+            var itemId = Guid.NewGuid();
+            var item = new BasketItem(itemId, "Test Product", new Money(10m, "GBP"), 2);
+            basket.AddItem(item);
+
+            // Act
+            basket.RemoveItem(itemId);
+
+            // Assert
+            basket.Items.Should().BeEmpty();
+        }
     }
 }
