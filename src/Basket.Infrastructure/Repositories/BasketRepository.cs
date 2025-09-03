@@ -6,19 +6,12 @@ namespace ShoppingBasket.Infrastructure.Repositories
 {
     public sealed class BasketRepository : IBasketRepository
     {
-        // In-memory store for the baskets
-        private readonly ConcurrentDictionary<Guid, Basket> _store = new();
+        // In-memory storage for demonstration purposes
+        private readonly Basket _basket = new();
 
-        public Task<Basket> CreateAsync(CancellationToken ct = default)
+        public Task<Basket> GetAsync(CancellationToken ct = default)
         {
-            var basket = new Basket();
-            _store[basket.Id] = basket;
-            return Task.FromResult(basket);
-        }
-
-        public Task<Basket?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        {
-            return Task.FromResult(_store.GetValueOrDefault(id));
+            return Task.FromResult(_basket);
         }
     }
 }

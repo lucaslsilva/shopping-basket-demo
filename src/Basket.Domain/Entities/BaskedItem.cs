@@ -4,16 +4,43 @@ namespace ShoppingBasket.Domain.Entities
 {
     public sealed class BaskedItem
     {
-        public Guid Id { get; init; } = Guid.NewGuid();
-        public string Name { get; init; }
-        public Money UnitPrice { get; init; }
-        public int Quantity { get; set; }
-        public BaskedItem(Guid id, string name, Money unitPrice, int quantity)
+        public Guid ProductId { get; } = Guid.NewGuid();
+        public string ProductName { get; }
+        public Money UnitPrice { get; private set; }
+        public int Quantity { get; private set; }
+
+        public BaskedItem(Guid productId, string productName, Money unitPrice, int quantity = 1)
         {
-            Id = id;
-            Name = name;
+            if (productId == Guid.Empty)
+            {
+                throw new ArgumentException("Product ID cannot be empty.", nameof(productId));
+            }
+            if (string.IsNullOrWhiteSpace(productName))
+            {
+                throw new ArgumentException("Product name cannot be null or empty.", nameof(productName));
+            }
+            if (unitPrice.Amount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(unitPrice), "Unit price cannot be negative.");
+            }
+            if (quantity <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
+            }
+
+            ProductId = productId;
+            ProductName = productName;
             UnitPrice = unitPrice;
             Quantity = quantity;
+        }
+
+        public void IncreaseQuantityBy(int valueToAdd)
+        {
+            if (valueToAdd <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(valueToAdd), "Value to add must be at least 1.");
+            }
+            Quantity += valueToAdd;
         }
     }
 }
