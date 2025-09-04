@@ -49,5 +49,39 @@ namespace ShoppingBasket.Tests.Domain
             // Assert
             basket.Items.Should().BeEmpty();
         }
+
+        [Fact]
+        public void AddItem_SameProduct_ShouldIncreaseQuantity()
+        {
+            // Arrange
+            var basket = new Basket();
+            var productId = Guid.NewGuid();
+            var item1 = new BasketItem(productId, "Test Product", new Money(10m, "GBP"), 1);
+            var item2 = new BasketItem(productId, "Test Product", new Money(10m, "GBP"), 2);
+
+            // Act
+            basket.AddItem(item1);
+            basket.AddItem(item2);
+
+            // Assert
+            basket.Items.Should().HaveCount(1);
+            basket.Items.First().Quantity.Should().Be(3);
+        }
+
+        [Fact]
+        public void AddItem_DifferentProducts_ShouldAddSeparately()
+        {
+            // Arrange
+            var basket = new Basket();
+            var item1 = new BasketItem(Guid.NewGuid(), "Product A", new Money(5m, "GBP"), 1);
+            var item2 = new BasketItem(Guid.NewGuid(), "Product B", new Money(15m, "GBP"), 1);
+
+            // Act
+            basket.AddItem(item1);
+            basket.AddItem(item2);
+
+            // Assert
+            basket.Items.Should().HaveCount(2);
+        }
     }
 }
