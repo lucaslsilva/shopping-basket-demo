@@ -52,5 +52,17 @@ namespace ShoppingBasket.Application.Services
             basket.RemoveItem(productId);
             return basket;
         }
+
+        public async Task<Money> GetTotalWithoutVatAsync(CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            return basket.GetTotalWithoutVat();
+        }
+
+        public async Task<Money> GetTotalWithVatAsync(CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            return basket.GetTotalWithVat();
+        }
     }
 }

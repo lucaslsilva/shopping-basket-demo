@@ -54,4 +54,16 @@ app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketSe
     return Results.Ok(updatedBasket);
 });
 
+app.MapGet("/basket/total/without-vat", async (IBasketService basketService, CancellationToken ct) =>
+{
+    var total = await basketService.GetTotalWithoutVatAsync(ct);
+    return Results.Ok(total);
+});
+
+app.MapGet("/basket/total/with-vat", async (IBasketService basketService, CancellationToken ct) =>
+{
+    var total = await basketService.GetTotalWithVatAsync(ct);
+    return Results.Ok(total);
+});
+
 app.Run();
