@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Get the basket
-app.MapGet("/baskets", async (IBasketService service) => Results.Ok(await service.GetBasketAsync()));
+app.MapGet("/basket", async (IBasketService service) => Results.Ok(await service.GetBasketAsync()));
 
 app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) =>
 {

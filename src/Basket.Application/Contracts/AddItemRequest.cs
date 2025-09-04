@@ -5,6 +5,7 @@
         string ProductName,
         decimal UnitPrice,
         string Currency = "GBP",
-        int Quantity = 1
+        int Quantity = 1,
+        decimal? DiscountPercentage = null
     );
 }

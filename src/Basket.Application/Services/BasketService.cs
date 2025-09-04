@@ -22,7 +22,13 @@ namespace ShoppingBasket.Application.Services
         public async Task<Basket> AddItemToBasketAsync(AddItemRequest request, CancellationToken ct = default)
         {
             var basket = await _basketRepository.GetAsync(ct) ?? throw new InvalidOperationException("Basket not found");
-            var item = new BasketItem(request.ProductId, request.ProductName, new Money(request.UnitPrice, request.Currency), request.Quantity);
+            var item = new BasketItem(
+                request.ProductId, 
+                request.ProductName, 
+                new Money(request.UnitPrice, request.Currency), 
+                request.Quantity, 
+                request.DiscountPercentage
+            );
             basket.AddItem(item);
             return basket;
         }

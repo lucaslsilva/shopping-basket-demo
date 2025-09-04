@@ -46,7 +46,7 @@ namespace ShoppingBasket.Domain.Entities
 
         public Money GetTotalWithoutVat()
         {
-            var totalAmount = _items.Sum(item => item.UnitPrice.Amount * item.Quantity);
+            var totalAmount = _items.Sum(item => item.GetTotalPrice().Amount);
             return new Money(totalAmount, _currency);
         }
 

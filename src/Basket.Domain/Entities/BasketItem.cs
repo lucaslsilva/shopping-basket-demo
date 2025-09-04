@@ -8,8 +8,9 @@ namespace ShoppingBasket.Domain.Entities
         public string ProductName { get; }
         public Money UnitPrice { get; private set; }
         public int Quantity { get; private set; }
+        public decimal? DiscountPercentage { get; private set; } 
 
-        public BasketItem(Guid productId, string productName, Money unitPrice, int quantity = 1)
+        public BasketItem(Guid productId, string productName, Money unitPrice, int quantity = 1, decimal? discountPercentage = null)
         {
             if (productId == Guid.Empty)
             {
@@ -27,11 +28,16 @@ namespace ShoppingBasket.Domain.Entities
             {
                 throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
             }
+            if (DiscountPercentage is < 0 or > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(DiscountPercentage), "Discount percentage must be between 0 and 100.");
+            }
 
             ProductId = productId;
             ProductName = productName;
             UnitPrice = unitPrice;
             Quantity = quantity;
+            DiscountPercentage = discountPercentage;
         }
 
         public void IncreaseQuantityBy(int valueToAdd)
@@ -41,6 +47,17 @@ namespace ShoppingBasket.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(valueToAdd), "Value to add must be at least 1.");
             }
             Quantity += valueToAdd;
+        }
+
+        public Money GetTotalPrice()
+        {
+            var totalAmount = UnitPrice.Amount * Quantity;
+            if (DiscountPercentage.HasValue)
+            {
+                var discountAmount = totalAmount * (DiscountPercentage.Value / 100);
+                totalAmount -= discountAmount;
+            }
+            return new(totalAmount, UnitPrice.Currency);
         }
     }
 }

@@ -19,6 +19,10 @@ namespace ShoppingBasket.Application.Validators
 
             RuleFor(x => x.Quantity)
                 .GreaterThan(0).WithMessage("Quantity must be at least 1.");
+
+            RuleFor(x => x.DiscountPercentage)
+                .InclusiveBetween(0, 100)
+                .When(x => x.DiscountPercentage.HasValue).WithMessage("DiscountPercentage must be between 0 and 100 if provided.");
         }
     }
 }

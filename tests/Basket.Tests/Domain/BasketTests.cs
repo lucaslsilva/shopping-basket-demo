@@ -9,11 +9,14 @@ namespace ShoppingBasket.Tests.Domain
         [Fact]
         public void AddItem_ShouldAddNewItem()
         {
+            // Arrange
             var basket = new Basket();
             var price = new Money(10m, "GBP");
 
+            // Act
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Test Product", price, 1));
 
+            // Assert
             basket.Items.Should().HaveCount(1);
             basket.Items.First().ProductName.Should().Be("Test Product");
             basket.Items.First().Quantity.Should().Be(1);
@@ -23,13 +26,16 @@ namespace ShoppingBasket.Tests.Domain
         [Fact]
         public void AddItem_ShouldIncreaseQuantity_IfSameProduct()
         {
+            // Arrange
             var basket = new Basket();
             var price = new Money(10m, "GBP");
             var productId = Guid.NewGuid();
 
+            // Act
             basket.AddItem(new BasketItem(productId, "Test Product", price, 1));
             basket.AddItem(new BasketItem(productId, "Test Product", price, 2));
 
+            // Assert
             basket.Items.Should().HaveCount(1);
             basket.Items.First().Quantity.Should().Be(3);
         }
@@ -105,25 +111,52 @@ namespace ShoppingBasket.Tests.Domain
         [Fact]
         public void GetTotalWithoutVat_ShouldReturnCorrectSum()
         {
+            // Arrange
             var basket = new Basket();
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(10m, "GBP"), 2)); // 20
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product B", new Money(5m, "GBP"), 1));  // 5
 
+            // Act
             var total = basket.GetTotalWithoutVat();
 
+            // Assert
             total.Amount.Should().Be(25m);
         }
 
         [Fact]
         public void GetTotalWithVat_ShouldAdd20Percent()
         {
+            // Arrange
             var basket = new Basket();
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100m, "GBP"), 1)); // 100
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product B", new Money(50m, "GBP"), 2));  // 100
 
+            // Act
             var total = basket.GetTotalWithVat();
 
+            // Assert
             total.Amount.Should().Be(240m); // 200 + 20%
+        }
+
+        [Fact]
+        public void AddItem_WithDiscount_ShouldApplyDiscountToTotal()
+        {
+            // Arrange
+            var basket = new Basket();
+            var discountedItem = new BasketItem(
+                Guid.NewGuid(),
+                "Product A",
+                new Money(100m, "GBP"),
+                quantity: 2,
+                discountPercentage: 25);
+
+            // Act
+            basket.AddItem(discountedItem);
+
+            // Assert
+            var totalWithoutVat = basket.GetTotalWithoutVat();
+            totalWithoutVat.Amount.Should().Be(150m); // (100 * 0.75) * 2
+            totalWithoutVat.Currency.Should().Be("GBP");
         }
     }
 }
