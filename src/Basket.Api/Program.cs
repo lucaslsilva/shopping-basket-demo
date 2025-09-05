@@ -9,9 +9,8 @@ using ShoppingBasket.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register FluentValidation
+// Automatically scan the assembly where validators live
 builder.Services.AddValidatorsFromAssemblyContaining<AddItemRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<SetShippingRequestValidator>();
 
 // Add services to the container.
 builder.Services.AddSingleton<IBasketRepository, BasketRepository>();
@@ -107,7 +106,7 @@ app.MapPost("/basket/discount-code", async (
 {
     var basket = await service.ApplyDiscountCodeAsync(request.Code, ct);
     return Results.Ok(basket);
-});
+}).AddEndpointFilter<ValidationFilter<ApplyDiscountCodeRequest>>();
 
 app.MapPost("/basket/shipping", async (
     SetShippingRequest request, 
