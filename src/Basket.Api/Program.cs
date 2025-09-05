@@ -11,10 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Register FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<AddItemRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<SetShippingRequestValidator>();
 
 // Add services to the container.
 builder.Services.AddSingleton<IBasketRepository, BasketRepository>();
 builder.Services.AddScoped<IDiscountCodeService, DiscountCodeService>();
+builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -78,8 +80,7 @@ app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketSer
 {
     var updatedBasket = await service.AddMultipleItemsToBasketAsync(req);
     return Results.Ok(updatedBasket);
-})
-.AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>();
+}).AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>();
 
 app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketService service) =>
 {
@@ -107,5 +108,14 @@ app.MapPost("/basket/discount-code", async (
     var basket = await service.ApplyDiscountCodeAsync(request.Code, ct);
     return Results.Ok(basket);
 });
+
+app.MapPost("/basket/shipping", async (
+    SetShippingRequest request, 
+    IBasketService service, 
+    CancellationToken ct) => 
+{
+    var basket = await service.SetShippingAsync(request.CountryCode, ct);
+    return Results.Ok(basket);
+}).AddEndpointFilter<ValidationFilter<SetShippingRequest>>();
 
 app.Run();

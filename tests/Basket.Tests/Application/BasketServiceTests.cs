@@ -12,13 +12,15 @@ namespace ShoppingBasket.Tests.Application
     {
         private readonly Mock<IBasketRepository> _repositoryMock;
         private readonly Mock<IDiscountCodeService> _discountServiceMock;
+        private readonly Mock<IShippingService> _shippingServiceMock;
         private readonly BasketService _basketService;
 
         public BasketServiceTests()
         {
             _repositoryMock = new();
             _discountServiceMock = new Mock<IDiscountCodeService>();
-            _basketService = new BasketService(_repositoryMock.Object, _discountServiceMock.Object);
+            _shippingServiceMock = new Mock<IShippingService>();
+            _basketService = new BasketService(_repositoryMock.Object, _discountServiceMock.Object, _shippingServiceMock.Object);
         }
 
         private void SetupRepositoryWithBasket(Basket basket)
@@ -133,6 +135,39 @@ namespace ShoppingBasket.Tests.Application
             // Assert
             await act.Should().ThrowAsync<InvalidOperationException>()
                      .WithMessage("Invalid discount code: INVALID");
+        }
+
+        [Theory]
+        [InlineData("UK", 3)]
+        [InlineData("US", 5)]
+        [InlineData("DE", 4)]
+        [InlineData("FR", 10)]
+        public async Task SetShipping_ShouldApplyCorrectCost(string countryCode, decimal expectedAmount)
+        {
+            // Arrange
+            var basket = new Basket();
+            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<CancellationToken>()))
+                           .ReturnsAsync(basket);
+
+            _shippingServiceMock.Setup(s => s.GetShippingCost(It.IsAny<string>()))
+                                .Returns((string cc) =>
+                                    new ShippingCost(new Money(
+                                        cc.ToUpper() switch
+                                        {
+                                            "UK" => 3m,
+                                            "US" => 5m,
+                                            "DE" => 4m,
+                                            _ => 10m
+                                        }, "GBP"), cc.ToUpper())
+                                );
+
+            // Act
+            var result = await _basketService.SetShippingAsync(countryCode);
+
+            // Assert
+            result.ShippingCost.Should().NotBeNull();
+            result.ShippingCost?.Amount.Amount.Should().Be(expectedAmount);
+            result.ShippingCost?.CountryCode.Should().Be(countryCode.ToUpper());
         }
     }
 }

@@ -13,5 +13,6 @@ namespace ShoppingBasket.Application.Services
         Task<Money> GetTotalWithoutVatAsync(CancellationToken ct = default);
         Task<Money> GetTotalWithVatAsync(CancellationToken ct = default);
         Task<Basket> ApplyDiscountCodeAsync(string code, CancellationToken ct = default);
+        Task<Basket> SetShippingAsync(string countryCode, CancellationToken ct = default);
     }
 }

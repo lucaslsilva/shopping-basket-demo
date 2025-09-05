@@ -9,11 +9,17 @@ namespace ShoppingBasket.Application.Services
     {
         private readonly IBasketRepository _basketRepository;
         private readonly IDiscountCodeService _discountCodeService;
+        private readonly IShippingService _shippingService;
 
-        public BasketService(IBasketRepository basketRepository, IDiscountCodeService discountCodeService)
+        public BasketService(
+            IBasketRepository basketRepository, 
+            IDiscountCodeService discountCodeService,
+            IShippingService shippingService
+        )
         {
             _basketRepository = basketRepository;
             _discountCodeService = discountCodeService;
+            _shippingService = shippingService;
         }
 
         public Task<Basket> GetBasketAsync(CancellationToken ct = default)
@@ -78,6 +84,14 @@ namespace ShoppingBasket.Application.Services
             var basket = await _basketRepository.GetAsync(ct);
             var discountCode = _discountCodeService.Validate(code);
             basket.ApplyDiscountCode(discountCode);
+            return basket;
+        }
+
+        public async Task<Basket> SetShippingAsync(string countryCode, CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            var shippingCost = _shippingService.GetShippingCost(countryCode);
+            basket.SetShippingCost(shippingCost);
             return basket;
         }
     }

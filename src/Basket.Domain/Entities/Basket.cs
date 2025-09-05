@@ -9,6 +9,7 @@ namespace ShoppingBasket.Domain.Entities
 
         public Guid Id { get; init; } = Guid.NewGuid();
         public DiscountCode? DiscountCode { get; private set; }
+        public ShippingCost? ShippingCost { get; private set; }
         public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
 
         public void AddItem(BasketItem item)
@@ -58,6 +59,11 @@ namespace ShoppingBasket.Domain.Entities
                 totalAmount -= discountAmount;
             }
 
+            if (ShippingCost is { } shipping)
+            {
+                totalAmount += shipping.Amount.Amount;
+            }
+
             return new Money(totalAmount, Currency);
         }
 
@@ -76,6 +82,11 @@ namespace ShoppingBasket.Domain.Entities
         public void ApplyDiscountCode(DiscountCode discountCode)
         {
             DiscountCode = discountCode;
+        }
+
+        public void SetShippingCost(ShippingCost shippingCost)
+        {
+            ShippingCost = shippingCost;
         }
     }
 }

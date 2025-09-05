@@ -176,5 +176,37 @@ namespace ShoppingBasket.Tests.Domain
             var total = basket.GetTotalWithoutVat();
             total.Amount.Should().Be(125m); // (100 * 0.8) + (50 * 0.9)
         }
+
+        [Fact]
+        public void GetTotalWithoutVat_ShouldIncludeShipping()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product", new Money(100, "GBP"), 1));
+            basket.SetShippingCost(new ShippingCost(new Money(5m, "GBP"), "UK"));
+
+            // Act
+            var totalWithoutVat = basket.GetTotalWithoutVat();
+
+            // Assert
+            totalWithoutVat.Amount.Should().Be(105m); // 100 + 5
+            totalWithoutVat.Currency.Should().Be("GBP");
+        }
+
+        [Fact]
+        public void GetTotalWithVat_ShouldIncludeShippingAndVat()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product", new Money(100, "GBP"), 1));
+            basket.SetShippingCost(new ShippingCost(new Money(5m, "GBP"), "UK"));
+
+            // Act
+            var totalWithVat = basket.GetTotalWithVat();
+
+            // Assert
+            totalWithVat.Amount.Should().Be(126m); // (100 + 5) * 1.2
+            totalWithVat.Currency.Should().Be("GBP");
+        }
     }
 }
