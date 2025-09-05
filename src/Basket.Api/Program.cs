@@ -1,6 +1,5 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Diagnostics;
 using ShoppingBasket.Api.Filters;
 using ShoppingBasket.Application.Contracts;
 using ShoppingBasket.Application.Services;
@@ -22,6 +21,39 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(exceptionApp =>
+{
+    exceptionApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        context.Response.ContentType = "application/json";
+
+        switch (exception)
+        {
+            case InvalidOperationException ex:
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    Title = "Invalid operation",
+                    Detail = ex.Message,
+                    Status = 400
+                });
+                break;
+
+            default:
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    Title = "An unexpected error occurred",
+                    Detail = exception?.Message,
+                    Status = 500
+                });
+                break;
+        }
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {
