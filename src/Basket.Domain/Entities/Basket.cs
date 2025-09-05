@@ -1,14 +1,14 @@
 ﻿using ShoppingBasket.Domain.ValueObjects;
-using System;
 
 namespace ShoppingBasket.Domain.Entities
 {
     public sealed class Basket
     {
         private readonly List<BasketItem> _items = new();
-        private string _currency => _items.FirstOrDefault()?.UnitPrice.Currency ?? "GBP"; // Default to GBP if no items
+        private string Currency => _items.FirstOrDefault()?.UnitPrice.Currency ?? "GBP"; // Default to GBP if no items
 
         public Guid Id { get; init; } = Guid.NewGuid();
+        public DiscountCode? DiscountCode { get; private set; }
         public IReadOnlyCollection<BasketItem> Items => _items.AsReadOnly();
 
         public void AddItem(BasketItem item)
@@ -18,9 +18,9 @@ namespace ShoppingBasket.Domain.Entities
                 throw new ArgumentNullException(nameof(item), "Item cannot be null.");
             }
             // Ensure all items in the basket have the same currency
-            if (item.UnitPrice.Currency != _currency)
+            if (item.UnitPrice.Currency != Currency)
             {
-                throw new InvalidOperationException($"Cannot add item with currency {item.UnitPrice.Currency} to basket with currency {_currency}.");
+                throw new InvalidOperationException($"Cannot add item with currency {item.UnitPrice.Currency} to basket with currency {Currency}.");
             }
 
             var existingItem = _items.FirstOrDefault(i => i.ProductId == item.ProductId);
@@ -47,7 +47,18 @@ namespace ShoppingBasket.Domain.Entities
         public Money GetTotalWithoutVat()
         {
             var totalAmount = _items.Sum(item => item.GetTotalPrice().Amount);
-            return new Money(totalAmount, _currency);
+
+            if (DiscountCode is { } code)
+            {
+                var totalAmountEligibleForDiscount = _items
+                    .Where(item => item.DiscountPercentage is null or 0)
+                    .Sum(item => item.GetTotalPrice().Amount);
+
+                var discountAmount = totalAmountEligibleForDiscount * (code.Percentage / 100);
+                totalAmount -= discountAmount;
+            }
+
+            return new Money(totalAmount, Currency);
         }
 
         public Money GetTotalWithVat(decimal vatRate = 0.2m)
@@ -60,6 +71,11 @@ namespace ShoppingBasket.Domain.Entities
             var totalWithoutVat = GetTotalWithoutVat();
             var vatAmount = totalWithoutVat * vatRate;
             return totalWithoutVat + vatAmount;
+        }
+
+        public void ApplyDiscountCode(DiscountCode discountCode)
+        {
+            DiscountCode = discountCode;
         }
     }
 }

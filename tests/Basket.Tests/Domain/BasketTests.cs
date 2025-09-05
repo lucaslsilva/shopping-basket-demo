@@ -14,11 +14,11 @@ namespace ShoppingBasket.Tests.Domain
             var price = new Money(10m, "GBP");
 
             // Act
-            basket.AddItem(new BasketItem(Guid.NewGuid(), "Test Product", price, 1));
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", price, 1));
 
             // Assert
             basket.Items.Should().HaveCount(1);
-            basket.Items.First().ProductName.Should().Be("Test Product");
+            basket.Items.First().ProductName.Should().Be("Product A");
             basket.Items.First().Quantity.Should().Be(1);
             basket.Items.First().UnitPrice.Should().Be(price);
         }
@@ -32,8 +32,8 @@ namespace ShoppingBasket.Tests.Domain
             var productId = Guid.NewGuid();
 
             // Act
-            basket.AddItem(new BasketItem(productId, "Test Product", price, 1));
-            basket.AddItem(new BasketItem(productId, "Test Product", price, 2));
+            basket.AddItem(new BasketItem(productId, "Product A", price, 1));
+            basket.AddItem(new BasketItem(productId, "Product B", price, 2));
 
             // Assert
             basket.Items.Should().HaveCount(1);
@@ -46,7 +46,7 @@ namespace ShoppingBasket.Tests.Domain
             // Arrange
             var basket = new Basket();
             var itemId = Guid.NewGuid();
-            var item = new BasketItem(itemId, "Test Product", new Money(10m, "GBP"), 2);
+            var item = new BasketItem(itemId, "Product A", new Money(10m, "GBP"), 2);
             basket.AddItem(item);
 
             // Act
@@ -62,8 +62,8 @@ namespace ShoppingBasket.Tests.Domain
             // Arrange
             var basket = new Basket();
             var productId = Guid.NewGuid();
-            var item1 = new BasketItem(productId, "Test Product", new Money(10m, "GBP"), 1);
-            var item2 = new BasketItem(productId, "Test Product", new Money(10m, "GBP"), 2);
+            var item1 = new BasketItem(productId, "Product A", new Money(10m, "GBP"), 1);
+            var item2 = new BasketItem(productId, "Product A", new Money(10m, "GBP"), 2);
 
             // Act
             basket.AddItem(item1);
@@ -157,6 +157,24 @@ namespace ShoppingBasket.Tests.Domain
             var totalWithoutVat = basket.GetTotalWithoutVat();
             totalWithoutVat.Amount.Should().Be(150m); // (100 * 0.75) * 2
             totalWithoutVat.Currency.Should().Be("GBP");
+        }
+
+        [Fact]
+        public void ApplyDiscountCode_ShouldDiscountOnlyNonDiscountedItems()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100m, "GBP"), 1)); // eligible
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product B", new Money(50m, "GBP"), 1, 10)); // already discounted
+
+            var code = new DiscountCode("SUMMER20", 20);
+
+            // Act
+            basket.ApplyDiscountCode(code);
+
+            // Assert
+            var total = basket.GetTotalWithoutVat();
+            total.Amount.Should().Be(125m); // (100 * 0.8) + (50 * 0.9)
         }
     }
 }

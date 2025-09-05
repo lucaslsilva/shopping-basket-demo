@@ -12,5 +12,6 @@ namespace ShoppingBasket.Application.Services
         Task<Basket> RemoveItemFromBasketAsync(Guid productId, CancellationToken ct = default);
         Task<Money> GetTotalWithoutVatAsync(CancellationToken ct = default);
         Task<Money> GetTotalWithVatAsync(CancellationToken ct = default);
+        Task<Basket> ApplyDiscountCodeAsync(string code, CancellationToken ct = default);
     }
 }

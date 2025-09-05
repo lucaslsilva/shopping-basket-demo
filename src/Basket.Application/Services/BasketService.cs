@@ -8,10 +8,12 @@ namespace ShoppingBasket.Application.Services
     public class BasketService : IBasketService
     {
         private readonly IBasketRepository _basketRepository;
+        private readonly IDiscountCodeService _discountCodeService;
 
-        public BasketService(IBasketRepository basketRepository)
+        public BasketService(IBasketRepository basketRepository, IDiscountCodeService discountCodeService)
         {
             _basketRepository = basketRepository;
+            _discountCodeService = discountCodeService;
         }
 
         public Task<Basket> GetBasketAsync(CancellationToken ct = default)
@@ -69,6 +71,14 @@ namespace ShoppingBasket.Application.Services
         {
             var basket = await _basketRepository.GetAsync(ct);
             return basket.GetTotalWithVat();
+        }
+
+        public async Task<Basket> ApplyDiscountCodeAsync(string code, CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            var discountCode = _discountCodeService.Validate(code);
+            basket.ApplyDiscountCode(discountCode);
+            return basket;
         }
     }
 }

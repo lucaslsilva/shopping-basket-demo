@@ -15,6 +15,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<AddItemRequestValidator>();
 
 // Add services to the container.
 builder.Services.AddSingleton<IBasketRepository, BasketRepository>();
+builder.Services.AddScoped<IDiscountCodeService, DiscountCodeService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -54,16 +55,25 @@ app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketSe
     return Results.Ok(updatedBasket);
 });
 
-app.MapGet("/basket/total/without-vat", async (IBasketService basketService, CancellationToken ct) =>
+app.MapGet("/basket/total/without-vat", async (IBasketService service, CancellationToken ct) =>
 {
-    var total = await basketService.GetTotalWithoutVatAsync(ct);
+    var total = await service.GetTotalWithoutVatAsync(ct);
     return Results.Ok(total);
 });
 
-app.MapGet("/basket/total/with-vat", async (IBasketService basketService, CancellationToken ct) =>
+app.MapGet("/basket/total/with-vat", async (IBasketService service, CancellationToken ct) =>
 {
-    var total = await basketService.GetTotalWithVatAsync(ct);
+    var total = await service.GetTotalWithVatAsync(ct);
     return Results.Ok(total);
+});
+
+app.MapPost("/basket/discount-code", async (
+    ApplyDiscountCodeRequest request,
+    IBasketService service,
+    CancellationToken ct) =>
+{
+    var basket = await service.ApplyDiscountCodeAsync(request.Code, ct);
+    return Results.Ok(basket);
 });
 
 app.Run();
