@@ -169,5 +169,25 @@ namespace ShoppingBasket.Tests.Application
             result.ShippingCost?.Amount.Amount.Should().Be(expectedAmount);
             result.ShippingCost?.CountryCode.Should().Be(countryCode.ToUpper());
         }
+
+        [Fact]
+        public async Task ClearBasket_ShouldRemoveAllItemsAndDiscounts()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(10m, "GBP"), 1));
+            basket.SetShippingCost(new ShippingCost(new Money(5m, "GBP"), "UK"));
+            basket.ApplyDiscountCode(new DiscountCode("SUMMER20", 20));
+
+            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(basket);
+
+            // Act
+            var result = await _basketService.ClearBasketAsync();
+
+            // Assert
+            result.Items.Should().BeEmpty();
+            result.ShippingCost.Should().BeNull();
+            result.DiscountCode.Should().BeNull();
+        }
     }
 }

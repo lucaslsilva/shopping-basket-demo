@@ -208,5 +208,24 @@ namespace ShoppingBasket.Tests.Domain
             totalWithVat.Amount.Should().Be(126m); // (100 + 5) * 1.2
             totalWithVat.Currency.Should().Be("GBP");
         }
+
+        [Fact]
+        public void Clear_ShouldRemoveAllItemsAndResetDiscountAndShipping()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(10, "GBP"), 1));
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product B", new Money(20, "GBP"), 2));
+            basket.SetShippingCost(new ShippingCost(new Money(5, "GBP"), "UK"));
+            basket.ApplyDiscountCode(new DiscountCode("SUMMER20", 20));
+
+            // Act
+            basket.Clear();
+
+            // Assert
+            basket.Items.Should().BeEmpty();
+            basket.ShippingCost.Should().BeNull();
+            basket.DiscountCode.Should().BeNull();
+        }
     }
 }

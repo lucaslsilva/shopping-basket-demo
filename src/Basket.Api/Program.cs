@@ -117,4 +117,10 @@ app.MapPost("/basket/shipping", async (
     return Results.Ok(basket);
 }).AddEndpointFilter<ValidationFilter<SetShippingRequest>>();
 
+app.MapDelete("/basket", async (IBasketService basketService, CancellationToken ct) =>
+{
+    var basket = await basketService.ClearBasketAsync(ct);
+    return Results.Ok(basket);
+});
+
 app.Run();

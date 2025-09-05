@@ -94,5 +94,12 @@ namespace ShoppingBasket.Application.Services
             basket.SetShippingCost(shippingCost);
             return basket;
         }
+
+        public async Task<Basket> ClearBasketAsync(CancellationToken ct = default)
+        {
+            var basket = await _basketRepository.GetAsync(ct);
+            basket.Clear();
+            return basket;
+        }
     }
 }

@@ -88,5 +88,12 @@ namespace ShoppingBasket.Domain.Entities
         {
             ShippingCost = shippingCost;
         }
+
+        public void Clear()
+        {
+            _items.Clear();
+            DiscountCode = null;
+            ShippingCost = null;
+        }
     }
 }
