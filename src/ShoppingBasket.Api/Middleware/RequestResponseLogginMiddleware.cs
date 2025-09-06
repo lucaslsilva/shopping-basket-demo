@@ -18,19 +18,27 @@
 
             // Copy original response body to read it
             var originalBodyStream = context.Response.Body;
-            using var responseBody = new MemoryStream();
+
+            await using var responseBody = new MemoryStream();
             context.Response.Body = responseBody;
 
-            await _next(context); // process the request
+            try
+            {
+                await _next(context); // process the request
 
-            // Log the response
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
-            var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
+                // Log the response
+                context.Response.Body.Seek(0, SeekOrigin.Begin);
+                var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
+                context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            _logger.LogInformation("Response {StatusCode}: {Body}", context.Response.StatusCode, text);
+                _logger.LogInformation("Response {StatusCode}: {Body}", context.Response.StatusCode, text);
 
-            await responseBody.CopyToAsync(originalBodyStream);
+                await responseBody.CopyToAsync(originalBodyStream); // write back to original stream
+            }
+            finally
+            {
+                context.Response.Body = originalBodyStream; // restore original stream
+            }
         }
     }
 }
