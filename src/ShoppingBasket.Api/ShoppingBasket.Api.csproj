@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Basket.Application\ShoppingBasket.Application.csproj" />
-    <ProjectReference Include="..\Basket.Domain\ShoppingBasket.Domain.csproj" />
-    <ProjectReference Include="..\Basket.Infrastructure\ShoppingBasket.Infrastructure.csproj" />
+    <ProjectReference Include="..\ShoppingBasket.Application\ShoppingBasket.Application.csproj" />
+    <ProjectReference Include="..\ShoppingBasket.Domain\ShoppingBasket.Domain.csproj" />
+    <ProjectReference Include="..\ShoppingBasket.Infrastructure\ShoppingBasket.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

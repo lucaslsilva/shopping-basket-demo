@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Basket.Application\ShoppingBasket.Application.csproj" />
-    <ProjectReference Include="..\..\src\Basket.Domain\ShoppingBasket.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Basket.Infrastructure\ShoppingBasket.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShoppingBasket.Application\ShoppingBasket.Application.csproj" />
+    <ProjectReference Include="..\..\src\ShoppingBasket.Domain\ShoppingBasket.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShoppingBasket.Infrastructure\ShoppingBasket.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
