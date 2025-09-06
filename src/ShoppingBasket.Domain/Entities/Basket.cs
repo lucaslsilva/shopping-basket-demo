@@ -19,7 +19,7 @@ namespace ShoppingBasket.Domain.Entities
                 throw new ArgumentNullException(nameof(item), "Item cannot be null.");
             }
             // Ensure all items in the basket have the same currency
-            if (item.UnitPrice.Currency != Currency)
+            if (_items.Count != 0 && item.UnitPrice.Currency != Currency)
             {
                 throw new InvalidOperationException($"Cannot add item with currency {item.UnitPrice.Currency} to basket with currency {Currency}.");
             }
