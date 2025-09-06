@@ -5,11 +5,12 @@ namespace ShoppingBasket.Application.Services
     public class DiscountCodeService : IDiscountCodeService
     {
         // Hardcoded valid discount codes for demonstration purposes
-        private readonly IReadOnlyDictionary<string, decimal> _validCodes = new Dictionary<string, decimal>
-        {
-            ["SUMMER20"] = 20,
-            ["WELCOME10"] = 10
-        };
+        private readonly IReadOnlyDictionary<string, decimal> _validCodes =
+            new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["SUMMER20"] = 20,
+                ["WELCOME10"] = 10
+            };
 
         public DiscountCode Validate(string code)
         {
