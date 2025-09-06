@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using ShoppingBasket.Api.Filters;
+using ShoppingBasket.Api.Middleware;
 using ShoppingBasket.Application.Contracts;
 using ShoppingBasket.Application.Services;
 using ShoppingBasket.Application.Validators;
@@ -55,6 +56,8 @@ app.UseExceptionHandler(exceptionApp =>
         }
     });
 });
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
