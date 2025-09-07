@@ -1,6 +1,8 @@
 ﻿using ShoppingBasket.Api.Filters;
 using ShoppingBasket.Application.Contracts;
 using ShoppingBasket.Application.Services;
+using ShoppingBasket.Domain.Entities;
+using ShoppingBasket.Domain.ValueObjects;
 
 namespace ShoppingBasket.Api.Endpoints
 {
@@ -8,70 +10,78 @@ namespace ShoppingBasket.Api.Endpoints
     {
         public static void MapBasketEndpoints(this IEndpointRouteBuilder app)
         {
-            // Get the basket
-            app.MapGet("/basket", async (IBasketService service) => Results.Ok(await service.GetBasketAsync()));
+            /// <summary>Gets the current basket with all items, discounts, and shipping.</summary>
+            app.MapGet("/basket", async (IBasketService service) =>
+                Results.Ok(await service.GetBasketAsync()))
+                .WithTags("Basket")
+                .WithName("GetBasket")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
 
-            // Clear the basket
+            /// <summary>Clears all items from the basket.</summary>
             app.MapDelete("/basket", async (IBasketService basketService, CancellationToken ct) =>
-            {
-                var basket = await basketService.ClearBasketAsync(ct);
-                return Results.Ok(basket);
-            });
+                Results.Ok(await basketService.ClearBasketAsync(ct)))
+                .WithTags("Basket")
+                .WithName("ClearBasket")
+                .Produces<Basket>(StatusCodes.Status200OK);
 
-            // Add an item to the basket
+            /// <summary>Adds a new item to the shopping basket.</summary>
             app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) =>
-            {
-                var updatedBasket = await service.AddItemToBasketAsync(req);
-                return Results.Ok(updatedBasket);
-            }).AddEndpointFilter<ValidationFilter<AddItemRequest>>();
+                Results.Ok(await service.AddItemToBasketAsync(req)))
+                .AddEndpointFilter<ValidationFilter<AddItemRequest>>()
+                .WithTags("Items")
+                .WithName("AddItemToBasket")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
 
-            // Add multiple items to the basket
+            /// <summary>Adds multiple items to the basket.</summary>
             app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketService service) =>
-            {
-                var updatedBasket = await service.AddMultipleItemsToBasketAsync(req);
-                return Results.Ok(updatedBasket);
-            }).AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>();
+                Results.Ok(await service.AddMultipleItemsToBasketAsync(req)))
+                .AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>()
+                .WithTags("Items")
+                .WithName("AddMultipleItemsToBasket")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
 
-            // Remove an item from the basket
+            /// <summary>Removes an item from the basket by product ID.</summary>
             app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketService service) =>
-            {
-                var updatedBasket = await service.RemoveItemFromBasketAsync(productId);
-                return Results.Ok(updatedBasket);
-            });
+                Results.Ok(await service.RemoveItemFromBasketAsync(productId)))
+                .WithTags("Items")
+                .WithName("RemoveItemFromBasket")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
 
-            // Get total without VAT
+            /// <summary>Gets the total basket value without VAT.</summary>
             app.MapGet("/basket/total/without-vat", async (IBasketService service, CancellationToken ct) =>
-            {
-                var total = await service.GetTotalWithoutVatAsync(ct);
-                return Results.Ok(total);
-            });
+                Results.Ok(await service.GetTotalWithoutVatAsync(ct)))
+                .WithTags("Basket")
+                .WithName("GetTotalWithoutVat")
+                .Produces<Money>(StatusCodes.Status200OK);
 
-            // Get total with VAT
+            /// <summary>Gets the total basket value including VAT.</summary>
             app.MapGet("/basket/total/with-vat", async (IBasketService service, CancellationToken ct) =>
-            {
-                var total = await service.GetTotalWithVatAsync(ct);
-                return Results.Ok(total);
-            });
+                Results.Ok(await service.GetTotalWithVatAsync(ct)))
+                .WithTags("Basket")
+                .WithName("GetTotalWithVat")
+                .Produces<Money>(StatusCodes.Status200OK);
 
-            // Apply a discount code
-            app.MapPost("/basket/discount-code", async (
-                ApplyDiscountCodeRequest request,
-                IBasketService service,
-                CancellationToken ct) =>
-            {
-                var basket = await service.ApplyDiscountCodeAsync(request.Code, ct);
-                return Results.Ok(basket);
-            }).AddEndpointFilter<ValidationFilter<ApplyDiscountCodeRequest>>();
+            /// <summary>Applies a discount code to the basket.</summary>
+            app.MapPost("/basket/discount-code", async (ApplyDiscountCodeRequest request, IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.ApplyDiscountCodeAsync(request.Code, ct)))
+                .AddEndpointFilter<ValidationFilter<ApplyDiscountCodeRequest>>()
+                .WithTags("Discount")
+                .WithName("ApplyDiscountCode")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
 
-            // Set shipping based on country code
-            app.MapPost("/basket/shipping", async (
-                SetShippingRequest request,
-                IBasketService service,
-                CancellationToken ct) =>
-            {
-                var basket = await service.SetShippingAsync(request.CountryCode, ct);
-                return Results.Ok(basket);
-            }).AddEndpointFilter<ValidationFilter<SetShippingRequest>>();
+            /// <summary>Sets shipping method based on country code.</summary>
+            app.MapPost("/basket/shipping", async (SetShippingRequest request, IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.SetShippingAsync(request.CountryCode, ct)))
+                .AddEndpointFilter<ValidationFilter<SetShippingRequest>>()
+                .WithTags("Shipping")
+                .WithName("SetShipping")
+                .Produces<Basket>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
         }
     }
 }
