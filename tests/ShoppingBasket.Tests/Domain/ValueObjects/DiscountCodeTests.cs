@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using ShoppingBasket.Domain.ValueObjects;
 
-namespace ShoppingBasket.Tests.Domain
+namespace ShoppingBasket.Tests.Domain.ValueObjects
 {
     public class DiscountCodeTests
     {
@@ -10,7 +10,10 @@ namespace ShoppingBasket.Tests.Domain
         [InlineData(150)]
         public void DiscountCode_InvalidPercentage_ShouldThrow(decimal invalidPercentage)
         {
+            // Act
             Action act = () => new DiscountCode("SUMMER20", invalidPercentage);
+            
+            // Assert
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
 
@@ -20,14 +23,20 @@ namespace ShoppingBasket.Tests.Domain
         [InlineData(null)]
         public void DiscountCode_InvalidCode_ShouldThrow(string invalidCode)
         {
+            // Act
             Action act = () => new DiscountCode(invalidCode!, 10);
+            
+            // Assert
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void DiscountCode_Valid_ShouldSetProperties()
         {
+            // Act
             var code = new DiscountCode("SUMMER20", 20);
+
+            // Assert
             code.Code.Should().Be("SUMMER20");
             code.Percentage.Should().Be(20);
         }

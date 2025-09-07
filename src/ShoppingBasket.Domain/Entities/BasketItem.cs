@@ -28,7 +28,7 @@ namespace ShoppingBasket.Domain.Entities
             {
                 throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
             }
-            if (DiscountPercentage is < 0 or > 100)
+            if (discountPercentage is < 0 or > 100)
             {
                 throw new ArgumentOutOfRangeException(nameof(DiscountPercentage), "Discount percentage must be between 0 and 100.");
             }

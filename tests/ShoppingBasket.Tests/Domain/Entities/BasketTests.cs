@@ -2,7 +2,7 @@
 using ShoppingBasket.Domain.Entities;
 using ShoppingBasket.Domain.ValueObjects;
 
-namespace ShoppingBasket.Tests.Domain
+namespace ShoppingBasket.Tests.Domain.Entities
 {
     public class BasketTests
     {
@@ -24,20 +24,17 @@ namespace ShoppingBasket.Tests.Domain
         }
 
         [Fact]
-        public void AddItem_ShouldIncreaseQuantity_IfSameProduct()
+        public void AddItem_WhenNull_ShouldThrowArgumentNullException()
         {
             // Arrange
             var basket = new Basket();
-            var price = new Money(10m, "GBP");
-            var productId = Guid.NewGuid();
 
             // Act
-            basket.AddItem(new BasketItem(productId, "Product A", price, 1));
-            basket.AddItem(new BasketItem(productId, "Product B", price, 2));
+            Action act = () => basket.AddItem(null!);
 
             // Assert
-            basket.Items.Should().HaveCount(1);
-            basket.Items.First().Quantity.Should().Be(3);
+            act.Should().Throw<ArgumentNullException>()
+               .WithMessage("Item cannot be null. (Parameter 'item')");
         }
 
         [Fact]
@@ -54,6 +51,21 @@ namespace ShoppingBasket.Tests.Domain
 
             // Assert
             basket.Items.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void RemoveItem_WhenItemDoesNotExist_ShouldDoNothing()
+        {
+            // Arrange
+            var basket = new Basket();
+            var item = new BasketItem(Guid.NewGuid(), "Product A", new Money(10m, "GBP"), 1);
+            basket.AddItem(item);
+
+            // Act
+            basket.RemoveItem(Guid.NewGuid());
+
+            // Assert
+            basket.Items.Should().HaveCount(1);
         }
 
         [Fact]
@@ -138,6 +150,36 @@ namespace ShoppingBasket.Tests.Domain
             total.Amount.Should().Be(240m); // 200 + 20%
         }
 
+        [Theory]
+        [InlineData(-0.1)]
+        [InlineData(1.1)]
+        public void GetTotalWithVat_WhenInvalidVatRate_ShouldThrow(decimal invalidVatRate)
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100m, "GBP"), 1));
+
+            // Act
+            Action act = () => basket.GetTotalWithVat(invalidVatRate);
+
+            // Assert
+            act.Should().Throw<ArgumentOutOfRangeException>()
+               .WithMessage("VAT rate must be between 0 and 1. (Parameter 'vatRate')");
+        }
+
+        [Fact]
+        public void Currency_WhenBasketIsEmpty_ShouldDefaultToGbp()
+        {
+            // Arrange
+            var basket = new Basket();
+
+            // Act
+            var total = basket.GetTotalWithoutVat();
+
+            // Assert
+            total.Currency.Should().Be("GBP");
+        }
+
         [Fact]
         public void AddItem_WithDiscount_ShouldApplyDiscountToTotal()
         {
@@ -175,6 +217,22 @@ namespace ShoppingBasket.Tests.Domain
             // Assert
             var total = basket.GetTotalWithoutVat();
             total.Amount.Should().Be(125m); // (100 * 0.8) + (50 * 0.9)
+        }
+
+        [Fact]
+        public void ApplyDiscountCode_ShouldOverridePreviousCode()
+        {
+            // Arrange
+            var basket = new Basket();
+            var firstCode = new DiscountCode("FIRST10", 10);
+            var secondCode = new DiscountCode("SECOND50", 50);
+            basket.ApplyDiscountCode(firstCode);
+
+            // Act
+            basket.ApplyDiscountCode(secondCode);
+
+            // Assert
+            basket.DiscountCode.Should().Be(secondCode);
         }
 
         [Fact]

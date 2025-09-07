@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using ShoppingBasket.Application.Contracts;
 using ShoppingBasket.Application.Services;
@@ -6,21 +7,29 @@ using ShoppingBasket.Domain.Entities;
 using ShoppingBasket.Domain.Repositories;
 using ShoppingBasket.Domain.ValueObjects;
 
-namespace ShoppingBasket.Tests.Application
+namespace ShoppingBasket.Tests.Application.Services
 {
     public class BasketServiceTests
     {
         private readonly Mock<IBasketRepository> _repositoryMock;
         private readonly Mock<IDiscountCodeService> _discountServiceMock;
         private readonly Mock<IShippingService> _shippingServiceMock;
+        private readonly Mock<ILogger<BasketService>> _loggerMock;
         private readonly BasketService _basketService;
 
         public BasketServiceTests()
         {
-            _repositoryMock = new();
+            _repositoryMock = new Mock<IBasketRepository>();
             _discountServiceMock = new Mock<IDiscountCodeService>();
             _shippingServiceMock = new Mock<IShippingService>();
-            _basketService = new BasketService(_repositoryMock.Object, _discountServiceMock.Object, _shippingServiceMock.Object);
+            _loggerMock = new Mock<ILogger<BasketService>>();
+
+            _basketService = new BasketService(
+                _repositoryMock.Object,
+                _discountServiceMock.Object,
+                _shippingServiceMock.Object,
+                _loggerMock.Object
+            );
         }
 
         private void SetupRepositoryWithBasket(Basket basket)
@@ -35,7 +44,6 @@ namespace ShoppingBasket.Tests.Application
             // Arrange
             var basket = new Basket();
             SetupRepositoryWithBasket(basket);
-
             var productId = Guid.NewGuid();
             var request = new AddItemRequest(productId, "Product", 10m, "GBP", 1);
 
@@ -47,12 +55,28 @@ namespace ShoppingBasket.Tests.Application
         }
 
         [Fact]
+        public async Task AddItem_WhenBasketNotFound_ShouldThrow()
+        {
+            // Arrange
+            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<CancellationToken>()))
+                           .ReturnsAsync((Basket?)null);
+
+            var request = new AddItemRequest(Guid.NewGuid(), "Product", 10m, "GBP", 1);
+
+            // Act
+            Func<Task> act = async () => await _basketService.AddItemToBasketAsync(request);
+
+            // Assert
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                     .WithMessage("Basket not found");
+        }
+
+        [Fact]
         public async Task AddMultipleItems_ShouldAddAllItems()
         {
             // Arrange
             var basket = new Basket();
             SetupRepositoryWithBasket(basket);
-
             var requests = new List<AddItemRequest>
             {
                 new(Guid.NewGuid(), "Product 1", 10m, "GBP", 1),
@@ -99,6 +123,38 @@ namespace ShoppingBasket.Tests.Application
         }
 
         [Fact]
+        public async Task GetTotalWithoutVatAsync_ShouldReturnCorrectTotal()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100, "GBP"), 1));
+            SetupRepositoryWithBasket(basket);
+
+            // Act
+            var total = await _basketService.GetTotalWithoutVatAsync();
+
+            // Assert
+            total.Amount.Should().Be(100m);
+            total.Currency.Should().Be("GBP");
+        }
+
+        [Fact]
+        public async Task GetTotalWithVatAsync_ShouldReturnCorrectTotal()
+        {
+            // Arrange
+            var basket = new Basket();
+            basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100, "GBP"), 1));
+            SetupRepositoryWithBasket(basket);
+
+            // Act
+            var total = await _basketService.GetTotalWithVatAsync();
+
+            // Assert
+            total.Amount.Should().Be(120m); // 100 + 20% VAT
+            total.Currency.Should().Be("GBP");
+        }
+
+        [Fact]
         public async Task ApplyDiscountCodeAsync_ValidCode_ShouldApplyDiscount()
         {
             // Arrange
@@ -106,7 +162,6 @@ namespace ShoppingBasket.Tests.Application
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(100, "GBP"), 1));
             SetupRepositoryWithBasket(basket);
 
-            // Mock discount service
             _discountServiceMock.Setup(s => s.Validate("SUMMER20"))
                                 .Returns(new DiscountCode("SUMMER20", 20));
 
@@ -129,7 +184,7 @@ namespace ShoppingBasket.Tests.Application
             _discountServiceMock.Setup(s => s.Validate("INVALID"))
                                 .Throws(new InvalidOperationException("Invalid discount code: INVALID"));
 
-            // Ac
+            // Act
             Func<Task> act = async () => await _basketService.ApplyDiscountCodeAsync("INVALID");
 
             // Assert
@@ -146,8 +201,7 @@ namespace ShoppingBasket.Tests.Application
         {
             // Arrange
             var basket = new Basket();
-            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<CancellationToken>()))
-                           .ReturnsAsync(basket);
+            SetupRepositoryWithBasket(basket);
 
             _shippingServiceMock.Setup(s => s.GetShippingCost(It.IsAny<string>()))
                                 .Returns((string cc) =>
@@ -178,8 +232,7 @@ namespace ShoppingBasket.Tests.Application
             basket.AddItem(new BasketItem(Guid.NewGuid(), "Product A", new Money(10m, "GBP"), 1));
             basket.SetShippingCost(new ShippingCost(new Money(5m, "GBP"), "UK"));
             basket.ApplyDiscountCode(new DiscountCode("SUMMER20", 20));
-
-            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(basket);
+            SetupRepositoryWithBasket(basket);
 
             // Act
             var result = await _basketService.ClearBasketAsync();
