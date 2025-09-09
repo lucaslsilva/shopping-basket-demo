@@ -11,8 +11,8 @@ namespace ShoppingBasket.Api.Endpoints
         public static void MapBasketEndpoints(this IEndpointRouteBuilder app)
         {
             /// <summary>Gets the current basket with all items, discounts, and shipping.</summary>
-            app.MapGet("/basket", async (IBasketService service) =>
-                Results.Ok(await service.GetBasketAsync()))
+            app.MapGet("/basket", async (IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.GetBasketAsync(ct)))
                 .WithTags("Basket")
                 .WithName("GetBasket")
                 .Produces<Basket>(StatusCodes.Status200OK)
@@ -26,8 +26,8 @@ namespace ShoppingBasket.Api.Endpoints
                 .Produces<Basket>(StatusCodes.Status200OK);
 
             /// <summary>Adds a new item to the shopping basket.</summary>
-            app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service) =>
-                Results.Ok(await service.AddItemToBasketAsync(req)))
+            app.MapPost("/basket/items", async (AddItemRequest req, IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.AddItemToBasketAsync(req, ct)))
                 .AddEndpointFilter<ValidationFilter<AddItemRequest>>()
                 .WithTags("Items")
                 .WithName("AddItemToBasket")
@@ -35,8 +35,8 @@ namespace ShoppingBasket.Api.Endpoints
                 .Produces(StatusCodes.Status400BadRequest);
 
             /// <summary>Adds multiple items to the basket.</summary>
-            app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketService service) =>
-                Results.Ok(await service.AddMultipleItemsToBasketAsync(req)))
+            app.MapPost("/basket/items/bulk", async (AddMultipleItemsRequest req, IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.AddMultipleItemsToBasketAsync(req, ct)))
                 .AddEndpointFilter<ValidationFilter<AddMultipleItemsRequest>>()
                 .WithTags("Items")
                 .WithName("AddMultipleItemsToBasket")
@@ -44,8 +44,8 @@ namespace ShoppingBasket.Api.Endpoints
                 .Produces(StatusCodes.Status400BadRequest);
 
             /// <summary>Removes an item from the basket by product ID.</summary>
-            app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketService service) =>
-                Results.Ok(await service.RemoveItemFromBasketAsync(productId)))
+            app.MapDelete("/basket/items/{productId:guid}", async (Guid productId, IBasketService service, CancellationToken ct) =>
+                Results.Ok(await service.RemoveItemFromBasketAsync(productId, ct)))
                 .WithTags("Items")
                 .WithName("RemoveItemFromBasket")
                 .Produces<Basket>(StatusCodes.Status200OK)
