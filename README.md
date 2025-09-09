@@ -71,6 +71,7 @@ dotnet test
 ```
 
 ## Next steps and improvements
+- Add support to multiple baskets
 - Add authentication/authoriaztion
 - Replace in-memory repository with a database
 - Add persistence with migrations
